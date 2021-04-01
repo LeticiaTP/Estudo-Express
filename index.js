@@ -15,8 +15,6 @@ const projects = [];
 app.get('/projects', (request, response) => {
     //const { title, owner } = request.query;
 
-
-
     return response.json(projects);
 });
 
@@ -31,24 +29,41 @@ app.post('/projects', (request, response) => {
 });
 
 app.put('/projects/:id', (request, response) => {
-    const params = request.params;
+    const {id} = request.params; // pega o ID
+    const {title, owner} = request.body; // retornando uma nova informação
 
-    console.log(params);
+    // aqui usamos o findIndex para percorrer todo o array atrás do id
+    // findIndex vai percorrer todos os projetos, e toda vez que ele percorrer na variável project
+    // caso ela seja satisfeita e retornar true, ela retornará o id que estou passando (project => project.id === id)
+    const projectIndex = projects.findIndex(project => project.id === id);
 
-    return response.json([
-        'Projeto 50',
-        'Projeto 2',
-        'Projeto 3', 
-        'Projeto 4',
-        'Projeto 5'
-    ]);
+    if (projectIndex <0) {
+        return response.status(400).json ({ error: 'Projeto não foi encontrado'});
+    }
+
+    // agora que tenho índice, vou criar uma nova informação do projeto
+    const project = {
+        id,
+        title,
+        owner
+    }
+
+    projects[projectIndex] = project;
+
+    return response.json(project);
 });
 
 app.delete('/projects/:id', (request, response) => {
-    return response.json([
-        'Projeto 50',
-        'Projeto 2'
-    ]);
+    const {id} = request.params;
+
+    const projectIndex = projects.findIndex(project => project.id === id);
+    if (projectIndex <0) {
+        return response.status(400).json({ error: 'Projeto não foi encontrado'});
+    }
+
+    projects.splice(projectIndex, 1); // uma posição apagada
+
+    return response.status(204).send(); // resposta de sem retorno
 });
 
 app.listen(3000, () => {
